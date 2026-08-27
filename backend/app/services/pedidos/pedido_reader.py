@@ -39,8 +39,13 @@ class PedidoReader:
         repartidor_id: UUID | None = None,
         skip: int = 0,
         limit: int = 50,
+        reconcile: bool = True,
     ) -> list[PedidoResponse]:
         """Lista pedidos con soporte de filtros por estado, zona, cliente y repartidor."""
+        if reconcile:
+            from .pedido_state_machine import PedidoStateMachine
+            PedidoStateMachine.reconcile_stale_orders(db)
+
         stmt = (
             select(Pedido)
             .options(joinedload(Pedido.cliente), joinedload(Pedido.repartidor))

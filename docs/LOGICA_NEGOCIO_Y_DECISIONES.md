@@ -27,91 +27,33 @@ graph TD
     A --> Chapinero["Zona Chapinero / Nororiente (Lat: 6.264, Lon: -75.549)"]
 ```
 
-> [!IMPORTANT]
-> **Decisión Geoespacial:** Se mantendrá la generación automática de coordenadas dentro de estos cuadrantes exactos con una dispersión estocástica de $\pm 0.003^\circ$ (~300 metros) para garantizar consistencia con los datasets consumidos por Airflow y Power BI.
-
 ---
 
 ## 2. Modelo Financiero y Costo Operativo
 
-El costo operativo de despacho (`costo_operacion`) representa el gasto logístico del delivery (mantenimiento de flota, depreciación de baterías/componentes y compensación base del repartidor):
-
 $$\text{Costo Operación} = \begin{cases} \text{monto} \times 0.10 & \text{si el transporte es Bicicleta} \\ \text{monto} \times 0.15 & \text{si el transporte es Moto Eléctrica} \end{cases}$$
 
-* **Bicicleta (0.10):** Transporte de cero emisiones con menor costo por kilómetro, ideal para distancias cortas y pedidos ligeros.
-* **Moto Eléctrica (0.15):** Mayor autonomía y velocidad para pedidos en zonas de mayor pendiente o distancia, con un costo operativo superior por consumo eléctrico y desgaste mecánico.
+* **Bicicleta (0.10):** Transporte de cero emisiones con menor costo por kilómetro.
+* **Moto Eléctrica (0.15):** Mayor autonomía y velocidad con un costo operativo ligeramente superior.
 
 ---
 
-## 3. Máquina de Estados y Matriz de Permisos por Rol
-
-```mermaid
-stateDiagram-v2
-    [*] --> Pendiente : Cliente crea pedido (POST /pedidos)
-    note right of Pendiente
-      - fecha_creacion = NOW()
-      - latitud / longitud = Auto según Zona
-      - costo_operacion = Auto (0.10 o 0.15)
-      - repartidor_id = Sorteo automático de repartidor en zona
-    end note
-
-    Pendiente --> Cancelado : [Cliente o Admin] Cancela pedido
-    Pendiente --> En_Camino : [Repartidor asignado o Admin] Inicia ruta
-    note right of En_Camino
-      - fecha_asignacion = NOW()
-    end note
-
-    En_Camino --> Entregado : [Repartidor o Admin] Confirma entrega
-    note right of Entregado
-      - fecha_entrega = NOW()
-    end note
-
-    En_Camino --> Cancelado : [Admin o Novedad] Cancelación forzada
-    Entregado --> [*]
-    Cancelado --> [*]
-```
-
-### Matriz de Transiciones y Privilegios:
-
-| Estado Origen | Estado Destino | Rol Permitido | Efecto Secundario en BD |
-| :--- | :--- | :--- | :--- |
-| **(Nuevo)** | `pendiente` | `cliente`, `admin` | Auto-asigna `repartidor_id`, calcula GPS y `costo_operacion`. |
-| `pendiente` | `en_camino` | `repartidor`, `admin` | Registra automáticamente `fecha_asignacion = NOW()`. |
-| `en_camino` | `entregado` | `repartidor`, `admin` | Registra automáticamente `fecha_entrega = NOW()`. |
-| `pendiente` | `cancelado` | `cliente`, `admin` | Anula el pedido y libera al repartidor asignado. |
-| `entregado` | *(Cualquiera)* | *Ninguno (Terminal)* | Error HTTP 400: Pedido finalizado. |
-| `cancelado` | *(Cualquiera)* | *Ninguno (Terminal)* | Error HTTP 400: Pedido cancelado. |
-
----
-
-## 4. Algoritmo de Despacho y Asignación Automática de Repartidores
-
-Cuando un cliente emite una orden de pedido:
+## 3. Máquina de Estados y Reglas de Conciliación por Tiempo (TTL)
 
 ```mermaid
 flowchart TD
-    Inicio[Cliente crea pedido] --> BuscarZona[Buscar Repartidores Activos en la misma Zona]
-    BuscarZona --> HayEnZona{¿Existen en esa zona?}
-    HayEnZona -- Sí --> SortearZona[Sortear aleatoriamente entre los repartidores de la zona]
-    HayEnZona -- No --> BuscarGeneral[Buscar cualquier Repartidor activo disponible]
-    BuscarGeneral --> SortearGeneral[Sortear entre el pool general]
-    SortearZona --> Asignar[Asignar repartidor_id al pedido]
-    SortearGeneral --> Asignar
-    Asignar --> Guardar[Persistir Pedido en PostgreSQL con estado PENDIENTE]
+    Inicio[Cliente crea Pedido: PENDIENTE] --> Check30{¿Transcurrieron 30 min sin aceptar?}
+    Check30 -- Sí --> Liberar[Liberar repartidor_id = NULL\nDisponible para cualquier conductor]
+    Check30 -- No --> Mantiene[Mantiene asignación inicial]
+    Liberar --> Check2H{¿Transcurrieron 2 horas sin despachar?}
+    Mantiene --> Check2H
+    Check2H -- Sí --> AutoCancel[Auto-Cancelar Pedido\nEstado: CANCELADO por expiración TTL]
+    Check2H -- No --> RepartidorAcepta[Repartidor hace clic en Aceptar y Despachar]
+    RepartidorAcepta --> EnCamino[Estado: EN_CAMINO\nrepartidor_id = Conductor solicitante\nfecha_asignacion = NOW()]
+    EnCamino --> Entregado[Repartidor confirma entrega\nEstado: ENTREGADO\nfecha_entrega = NOW()]
 ```
 
----
-
-## 5. Justificación sobre la Tabla de Productos vs Catálogo de Servicios
-
-### Pregunta Evaluada: *¿Debemos crear una tabla `productos` y `detalle_pedidos` para el modo invitado?*
-
-### Decisión Técnica: **No crear tabla relacional de productos; manejar Catálogo de Servicios Ecológicos en Frontend.**
-
-### Argumentación de Ingeniería:
-1. **Alineación con el Core del Negocio:**
-   - El objetivo de EcoDelivery es una plataforma de **logística y despacho ecológico**, no un e-commerce de retail con gestión de inventarios/SKUs.
-   - Los módulos 3 (Airflow) y 4 (Power BI) consumen métricas a nivel de pedido (`monto`, `tiempo_entrega`, `zona`, `tipo_vehiculo`). Agregar tablas intermedias rompería la compatibilidad directa con los datasets semilla.
-2. **Experiencia de Usuario (UI/UX):**
-   - El modo **Invitado** muestra una pantalla de bienvenida moderna con los servicios ofrecidos (*Entrega Flash en Bicicleta*, *Paquetería en Moto Eléctrica*, *Cobertura en 5 Zonas*), incentivando la conversión al Login/Registro.
-   - El usuario autenticado crea pedidos de forma directa y ágil mediante monto y zona.
+### Reglas de Expiración Automática:
+1. **Regla de los 30 Minutos (Liberación a Pool Abierto):** Si un pedido pendiente asignado a un repartidor no es aceptado en 30 minutos desde su creación, el sistema desvincula el `repartidor_id = NULL`, mostrándolo inmediatamente como disponible para cualquier repartidor de la ciudad.
+2. **Regla de las 2 Horas (Auto-Cancelación):** Si transcurren 120 minutos sin que ningún repartidor despache la orden, el sistema la cancela de forma automática (`estado = 'cancelado'`), previniendo órdenes obsoletas o desatendidas.
+3. **Auto-Asignación Garantizada al Despachar:** En el momento exacto en que un repartidor acepta un pedido pendiente (`en_camino`), el backend asegura y sella su ID como el `repartidor_id` oficial de la entrega.
