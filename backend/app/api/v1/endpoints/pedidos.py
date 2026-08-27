@@ -103,9 +103,15 @@ def get_pedido_detail(
 def update_pedido_status(
     id_pedido: UUID,
     update_in: PedidoUpdateEstado,
+    current_user: User | None = Depends(get_optional_current_user),
     db: Session = Depends(get_db),
 ):
     try:
-        return update_pedido_estado(db=db, id_pedido=id_pedido, update_in=update_in)
+        return update_pedido_estado(
+            db=db,
+            id_pedido=id_pedido,
+            update_in=update_in,
+            user_solicitante=current_user,
+        )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

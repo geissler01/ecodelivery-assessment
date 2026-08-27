@@ -99,7 +99,8 @@ def run_seed():
             users_count = 0
             for row in reader:
                 user_id = UUID(row["id"])
-                user_email = row["email"].lower().strip()
+                # Normalizamos el dominio ficticio .local a un dominio válido RFC (.com) para validación estricta EmailStr
+                user_email = row["email"].lower().strip().replace(".local", ".com")
                 user_role_str = row["role"].lower().strip()
                 user_role = UserRole.REPARTIDOR if user_role_str == "repartidor" else UserRole.CLIENTE
 
