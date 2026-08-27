@@ -1,0 +1,66 @@
+services:
+  # En caso de que uses la BD PostgreSQL externa (3.18.243.45:5433), este contenedor puede quedar como fallback local
+  # o puedes usar el contenedor local postgres para desarrollo autónomo
+  postgres:
+    image: postgres:16-alpine
+    container_name: ecodelivery_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-datadrive_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-datadrive2026}
+      POSTGRES_DB: ${POSTGRES_DB:-ecodelivery_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-datadrive_user} -d ${POSTGRES_DB:-ecodelivery_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecodelivery_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ecodelivery_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - ./data:/data:ro
+    networks:
+      - ecodelivery_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: ecodelivery_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - certbot_etc:/etc/letsencrypt
+      - certbot_var:/var/www/certbot
+    depends_on:
+      - backend
+    networks:
+      - ecodelivery_net
+
+volumes:
+  postgres_data:
+    name: ecodelivery_postgres_data
+  certbot_etc:
+    name: ecodelivery_certbot_etc
+  certbot_var:
+    name: ecodelivery_certbot_var
+
+networks:
+  ecodelivery_net:
+    name: ecodelivery_network
