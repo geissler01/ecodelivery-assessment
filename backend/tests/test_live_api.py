@@ -7,6 +7,7 @@ import json
 import os
 import urllib.parse
 import urllib.request
+import urllib.error
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -24,7 +25,7 @@ def run_tests():
     with urllib.request.urlopen(req, timeout=10) as res:
         health = json.loads(res.read().decode("utf-8"))
         assert health.get("status") == "healthy"
-        print("✅ [1/9] Health Check -> OK (status: healthy)")
+        print("✅ [1/10] Health Check -> OK (status: healthy)")
 
     # 2. Login Administrador
     login_admin = urllib.parse.urlencode({
@@ -40,7 +41,7 @@ def run_tests():
         token_data = json.loads(res.read().decode("utf-8"))
         admin_token = token_data["access_token"]
         assert token_data.get("token_type") == "bearer"
-        print("✅ [2/9] Login Superadmin -> OK (Token JWT emitido)")
+        print("✅ [2/10] Login Superadmin -> OK (Token JWT emitido)")
 
     # 3. Login Cliente Semilla (Hash Argon2id)
     login_cliente = urllib.parse.urlencode({
@@ -55,7 +56,7 @@ def run_tests():
     with urllib.request.urlopen(req, timeout=10) as res:
         token_data = json.loads(res.read().decode("utf-8"))
         cliente_token = token_data["access_token"]
-        print("✅ [3/9] Login Cliente Semilla -> OK (Argon2id verificado)")
+        print("✅ [3/10] Login Cliente Semilla -> OK (Argon2id verificado)")
 
     # 4. Perfil de Usuario (/users/me)
     req = urllib.request.Request(
@@ -64,7 +65,7 @@ def run_tests():
     )
     with urllib.request.urlopen(req, timeout=10) as res:
         me = json.loads(res.read().decode("utf-8"))
-        print(f"✅ [4/9] Perfil /me -> {me['full_name']} | Rol: {me['role']} | Zona: {me.get('zona_principal')}")
+        print(f"✅ [4/10] Perfil /me -> {me['full_name']} | Rol: {me['role']} | Zona: {me.get('zona_principal')}")
 
     # 5. Resumen de Actividad (/users/me/resumen)
     req = urllib.request.Request(
@@ -73,35 +74,50 @@ def run_tests():
     )
     with urllib.request.urlopen(req, timeout=10) as res:
         resumen = json.loads(res.read().decode("utf-8"))
-        print(f"✅ [5/9] Resumen Usuario -> Pedidos: {resumen['total_pedidos']} | Gasto: ${resumen['monto_total']:,.2f}")
+        print(f"✅ [5/10] Resumen Usuario -> Pedidos: {resumen['total_pedidos']} | Gasto: ${resumen['monto_total']:,.2f}")
 
-    # 6. Listado de Pedidos (/pedidos/)
-    req = urllib.request.Request(f"{BASE_URL}/api/v1/pedidos/?limit=5", headers={"User-Agent": "Mozilla/5.0"})
+    # 6. Listado de Pedidos como Admin (/pedidos/)
+    req = urllib.request.Request(
+        f"{BASE_URL}/api/v1/pedidos/?limit=5",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
     with urllib.request.urlopen(req, timeout=10) as res:
         pedidos = json.loads(res.read().decode("utf-8"))
         assert len(pedidos) > 0
         sample = pedidos[0]
-        print(f"✅ [6/9] Listar Pedidos -> {len(pedidos)} obtenidos (Muestra: ID {sample['id_pedido'][:8]}... | {sample['zona']})")
+        print(f"✅ [6/10] Listar Pedidos (Admin) -> {len(pedidos)} obtenidos (Muestra: ID {sample['id_pedido'][:8]}... | {sample['zona']})")
 
-    # 7. Filtros Combinados de Pedidos
+    # 7. Filtros Combinados de Pedidos (Admin)
     req = urllib.request.Request(
         f"{BASE_URL}/api/v1/pedidos/?zona=Chapinero&estado=entregado&limit=5",
-        headers={"User-Agent": "Mozilla/5.0"},
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     with urllib.request.urlopen(req, timeout=10) as res:
         pedidos_filt = json.loads(res.read().decode("utf-8"))
-        print(f"✅ [7/9] Filtros Combinados (?zona=Chapinero&estado=entregado) -> {len(pedidos_filt)} pedidos")
+        print(f"✅ [7/10] Filtros Combinados (?zona=Chapinero&estado=entregado) -> {len(pedidos_filt)} pedidos")
 
-    # 8. Estadísticas Generales (/pedidos/estadisticas/resumen)
+    # 8. Verificación de Seguridad RBAC: Cliente bloqueado en /pedidos/
+    req = urllib.request.Request(
+        f"{BASE_URL}/api/v1/pedidos/?limit=5",
+        headers={"Authorization": f"Bearer {cliente_token}"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as res:
+            raise AssertionError("El cliente no debería tener acceso a GET /pedidos/")
+    except urllib.error.HTTPError as e:
+        assert e.code == 403
+        print("✅ [8/10] Protección RBAC (/pedidos/) -> OK (403 Forbidden para Clientes)")
+
+    # 9. Estadísticas Generales (/pedidos/estadisticas/resumen)
     req = urllib.request.Request(
         f"{BASE_URL}/api/v1/pedidos/estadisticas/resumen",
         headers={"User-Agent": "Mozilla/5.0"},
     )
     with urllib.request.urlopen(req, timeout=10) as res:
         stats = json.loads(res.read().decode("utf-8"))
-        print(f"✅ [8/9] KPIs Operativos -> Total: {stats['total_pedidos']} | Ingresos: ${stats['ingresos_totales']:,.2f} | Tiempo Prom: {stats['tiempo_promedio_entrega_minutos']} min")
+        print(f"✅ [9/10] KPIs Operativos -> Total: {stats['total_pedidos']} | Ingresos: ${stats['ingresos_totales']:,.2f} | Tiempo Prom: {stats['tiempo_promedio_entrega_minutos']} min")
 
-    # 9. Crear Pedido y Transición de Estado (Máquina de Estados)
+    # 10. Crear Pedido y Transición de Estado (Máquina de Estados)
     create_payload = json.dumps({
         "zona": "Norte",
         "metodo_pago": "app",
@@ -125,14 +141,14 @@ def run_tests():
     req = urllib.request.Request(
         f"{BASE_URL}/api/v1/pedidos/{nuevo_id}/estado",
         data=patch_payload,
-        headers={"Content-Type": "application/json"},
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {admin_token}"},
         method="PATCH",
     )
     with urllib.request.urlopen(req, timeout=10) as res:
         pedido_actualizado = json.loads(res.read().decode("utf-8"))
         assert pedido_actualizado["estado"] == "en_camino"
         assert pedido_actualizado.get("fecha_asignacion") is not None
-        print(f"✅ [9/9] Ciclo de Pedido (POST y PATCH Máquina de Estados) -> OK (ID: {nuevo_id[:8]}... | Estado: en_camino)")
+        print(f"✅ [10/10] Ciclo de Pedido (POST y PATCH Máquina de Estados) -> OK (ID: {nuevo_id[:8]}... | Estado: en_camino)")
 
     print("=" * 70)
     print("🎉 ¡TODAS LAS PRUEBAS E2E FUERON EXITOSAS AL 100%!")

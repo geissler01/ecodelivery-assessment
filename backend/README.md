@@ -58,8 +58,8 @@ Backend oficial para **EcoDelivery S.A.S.** construido con **FastAPI**, **SQLAlc
 | Rol | Correo Electrónico | Contraseña |
 | :--- | :--- | :--- |
 | **Administrador** | `admin@ecodelivery.com` | `Admin1234!` |
-| **Cliente Semilla** | `diego.gonzalez7@ecodelivery.local` | `EcoDelivery2026!` |
-| **Repartidor Semilla** | `carlos.perez63@ecodelivery.local` | `EcoDelivery2026!` |
+| **Cliente Semilla** | `diego.gonzalez7@ecodelivery.com` | `EcoDelivery2026!` |
+| **Repartidor Semilla** | `andres.gomez91@ecodelivery.com` | `EcoDelivery2026!` |
 
 > [!NOTE]
 > Todos los 150 usuarios del dataset original han sido inicializados con la contraseña: `EcoDelivery2026!`.
