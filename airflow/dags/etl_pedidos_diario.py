@@ -42,7 +42,7 @@ with DAG(
     dag_id="etl_pedidos_diario",
     default_args=default_args,
     description="Pipeline ETL Diario EcoDelivery: OLTP + RandomUser -> Bronze -> Silver -> Gold (Star Schema)",
-    schedule_interval="@daily",
+    schedule="@daily",
     start_date=datetime(2026, 1, 1),
     catchup=False,
     tags=["ecodelivery", "medallion", "star_schema", "powerbi", "fastapi"],

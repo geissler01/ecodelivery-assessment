@@ -3,9 +3,9 @@ services:
     image: postgres:16-alpine
     container_name: ecodelivery_postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-ecodelivery_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecodelivery_user_01**}
-      POSTGRES_DB: ${POSTGRES_DB:-ecodelivery_db}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -15,7 +15,7 @@ services:
       - ./dwh/sql/03_silver_tables.sql:/docker-entrypoint-initdb.d/03_silver_tables.sql:ro
       - ./dwh/sql/04_gold_star_schema.sql:/docker-entrypoint-initdb.d/04_gold_star_schema.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ecodelivery_user} -d ${POSTGRES_DB:-ecodelivery_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
