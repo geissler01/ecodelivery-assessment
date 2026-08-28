@@ -1,0 +1,68 @@
+table dim_date
+	lineageTag: f1a2b3c4-0005-0005-0005-000000000001
+
+	column date_sk
+		dataType: int64
+		sourceColumn: date_sk
+		lineageTag: f1a2b3c4-0005-0005-0005-000000000011
+		summarizeBy: none
+
+	column full_date
+		dataType: dateTime
+		sourceColumn: full_date
+		lineageTag: f1a2b3c4-0005-0005-0005-000000000012
+		summarizeBy: none
+		formatString: dd/MM/yyyy
+
+	column year
+		dataType: int64
+		sourceColumn: year
+		lineageTag: f1a2b3c4-0005-0005-0005-000000000013
+		summarizeBy: none
+
+	column quarter
+		dataType: int64
+		sourceColumn: quarter
+		lineageTag: f1a2b3c4-0005-0005-0005-000000000014
+		summarizeBy: none
+
+	column month_number
+		dataType: int64
+		sourceColumn: month_number
+		lineageTag: f1a2b3c4-0005-0005-0005-000000000015
+		summarizeBy: none
+
+	column month_name
+		dataType: string
+		sourceColumn: month_name
+		lineageTag: f1a2b3c4-0005-0005-0005-000000000016
+		summarizeBy: none
+		sortByColumn: month_number
+
+	column day_of_month
+		dataType: int64
+		sourceColumn: day_of_month
+		lineageTag: f1a2b3c4-0005-0005-0005-000000000017
+		summarizeBy: none
+
+	column day_of_week
+		dataType: string
+		sourceColumn: day_of_week
+		lineageTag: f1a2b3c4-0005-0005-0005-000000000018
+		summarizeBy: none
+
+	column is_weekend
+		dataType: boolean
+		sourceColumn: is_weekend
+		lineageTag: f1a2b3c4-0005-0005-0005-000000000019
+		summarizeBy: none
+
+	partition dim_date = m
+		mode: import
+		source =
+			let
+				Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh", [Query="SELECT * FROM gold.dim_date"])
+			in
+				Origen
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,64 @@
+table dim_cliente
+	lineageTag: f1a2b3c4-0002-0002-0002-000000000001
+
+	column cliente_sk
+		dataType: int64
+		sourceColumn: cliente_sk
+		lineageTag: f1a2b3c4-0002-0002-0002-000000000011
+		summarizeBy: none
+
+	column user_id
+		dataType: string
+		sourceColumn: user_id
+		lineageTag: f1a2b3c4-0002-0002-0002-000000000012
+		summarizeBy: none
+
+	column full_name
+		dataType: string
+		sourceColumn: full_name
+		lineageTag: f1a2b3c4-0002-0002-0002-000000000013
+		summarizeBy: none
+
+	column email
+		dataType: string
+		sourceColumn: email
+		lineageTag: f1a2b3c4-0002-0002-0002-000000000014
+		summarizeBy: none
+
+	column gender
+		dataType: string
+		sourceColumn: gender
+		lineageTag: f1a2b3c4-0002-0002-0002-000000000015
+		summarizeBy: none
+
+	column age
+		dataType: int64
+		sourceColumn: age
+		lineageTag: f1a2b3c4-0002-0002-0002-000000000016
+		summarizeBy: none
+
+	column age_group
+		dataType: string
+		sourceColumn: age_group
+		lineageTag: f1a2b3c4-0002-0002-0002-000000000017
+		summarizeBy: none
+
+	column zona_principal
+		dataType: string
+		sourceColumn: zona_principal
+		lineageTag: f1a2b3c4-0002-0002-0002-000000000019
+		summarizeBy: none
+
+	measure 'Clientes Activos' = DISTINCTCOUNT(dim_cliente[cliente_sk])
+		lineageTag: f1a2b3c4-0002-0002-0002-000000000051
+		formatString: #,0
+
+	partition dim_cliente = m
+		mode: import
+		source =
+			let
+				Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh", [Query="SELECT * FROM gold.dim_cliente"])
+			in
+				Origen
+
+	annotation PBI_ResultType = Table

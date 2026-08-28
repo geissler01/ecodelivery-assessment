@@ -20,11 +20,11 @@ x-airflow-common: &airflow-common
     
     # FAB Auth Manager para compatibilidad de interfaz
     AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
-    # URL base del servidor — necesaria para que FAB construya redirects correctos detrás de nginx
     AIRFLOW__WEBSERVER__BASE_URL: ${AIRFLOW__WEBSERVER__BASE_URL:-http://airflow.geisler.coderhivex.com}
-    # ProxyFix: Flask usa headers X-Forwarded-* para determinar su hostname real
-    # Sin esto, FAB rechaza el parámetro 'next' del login como open redirect externo
     AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX: "True"
+    # Deshabilitar CSRF estricto de Flask-WTF para proxy reverso sin HTTPS
+    AIRFLOW__WEBSERVER__WTF_CSRF_ENABLED: "False"
+    AIRFLOW__WEBSERVER__COOKIE_SECURE: "False"
     PYTHONPATH: /opt/airflow
     
     # Refresco de DAGs en desarrollo

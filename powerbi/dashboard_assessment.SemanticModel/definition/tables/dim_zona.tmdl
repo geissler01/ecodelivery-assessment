@@ -1,0 +1,44 @@
+table dim_zona
+	lineageTag: f1a2b3c4-0004-0004-0004-000000000001
+
+	column zona_sk
+		dataType: int64
+		sourceColumn: zona_sk
+		lineageTag: f1a2b3c4-0004-0004-0004-000000000011
+		summarizeBy: none
+
+	column nombre_zona
+		dataType: string
+		sourceColumn: nombre_zona
+		lineageTag: f1a2b3c4-0004-0004-0004-000000000012
+		summarizeBy: none
+
+	column latitud_centro
+		dataType: decimal
+		sourceColumn: latitud_centro
+		lineageTag: f1a2b3c4-0004-0004-0004-000000000013
+		summarizeBy: none
+		dataCategory: Latitude
+
+	column longitud_centro
+		dataType: decimal
+		sourceColumn: longitud_centro
+		lineageTag: f1a2b3c4-0004-0004-0004-000000000014
+		summarizeBy: none
+		dataCategory: Longitude
+
+	column region
+		dataType: string
+		sourceColumn: region
+		lineageTag: f1a2b3c4-0004-0004-0004-000000000015
+		summarizeBy: none
+
+	partition dim_zona = m
+		mode: import
+		source =
+			let
+				Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh", [Query="SELECT * FROM gold.dim_zona"])
+			in
+				Origen
+
+	annotation PBI_ResultType = Table

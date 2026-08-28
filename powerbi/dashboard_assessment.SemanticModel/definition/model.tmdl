@@ -10,5 +10,10 @@ model Model
 	annotation __PBI_TimeIntelligenceEnabled = 1
 	annotation PBI_ProTooling = ["DevMode"]
 
-	ref cultureInfo es-CO
+ref table fact_pedidos
+ref table dim_cliente
+ref table dim_repartidor
+ref table dim_zona
+ref table dim_date
 
+ref cultureInfo es-CO

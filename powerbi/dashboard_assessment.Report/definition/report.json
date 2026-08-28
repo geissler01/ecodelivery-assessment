@@ -11,25 +11,17 @@
       "type": "SharedResources"
     }
   },
-  "sections": [
-    { "name": "ResumeEjecutivo" },
-    { "name": "Operaciones" }
-  ],
   "objects": {
     "section": [
       {
         "properties": {
           "verticalAlignment": {
-            "expr": { "Literal": { "Value": "'Top'" } }
+            "expr": {
+              "Literal": {
+                "Value": "'Top'"
+              }
+            }
           }
-        }
-      }
-    ],
-    "report": [
-      {
-        "properties": {
-          "filterPaneEnabled": { "expr": { "Literal": { "Value": "true" } } },
-          "showFilterPaneSearch": { "expr": { "Literal": { "Value": "true" } } }
         }
       }
     ]
