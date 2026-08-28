@@ -27,11 +27,16 @@ x-airflow-common: &airflow-common
     AIRFLOW__WEBSERVER__COOKIE_SECURE: "False"
     PYTHONPATH: /opt/airflow
     
-    # Refresco de DAGs en desarrollo
-    AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: 5
-    AIRFLOW__DAG_PROCESSOR__DAG_BUNDLE_REFRESH_INTERVAL: 5
-    # Limitar workers del api-server (evitar OOM en VPS con RAM limitada)
-    AIRFLOW__API_SERVER__WORKERS: ${AIRFLOW__API_SERVER__WORKERS:-1}
+    # Optimización de concurrencia y CPU para VPS con recursos limitados
+    AIRFLOW__CORE__PARALLELISM: 2
+    AIRFLOW__CORE__MAX_ACTIVE_TASKS_PER_DAG: 2
+    AIRFLOW__CORE__MAX_ACTIVE_RUNS_PER_DAG: 1
+    AIRFLOW__DAG_PROCESSOR__PARSING_PROCESSES: 1
+    AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: 60
+    AIRFLOW__DAG_PROCESSOR__DAG_BUNDLE_REFRESH_INTERVAL: 60
+    AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: 30
+    AIRFLOW__API_SERVER__WORKERS: 1
+    AIRFLOW__WEBSERVER__WEB_SERVER_WORKER_TIMEOUT: 300
 
     # Conexiones para tareas ETL
     AIRFLOW_OLTP_URI: postgresql+psycopg2://${POSTGRES_USER:-ecodelivery_user}:${POSTGRES_PASSWORD:-ecodelivery_user_01**}@postgres:5432/${POSTGRES_DB:-ecodelivery_db}
