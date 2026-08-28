@@ -9,6 +9,9 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+COPY scripts/init_airflow.sh /init_airflow.sh
+RUN chmod +x /init_airflow.sh
+
 USER airflow
 COPY requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -r /requirements.txt

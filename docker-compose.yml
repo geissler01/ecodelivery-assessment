@@ -2,8 +2,34 @@ x-airflow-common: &airflow-common
   build:
     context: ./airflow
     dockerfile: Dockerfile
-  env_file:
-    - .env
+  environment: &airflow-common-env
+    # --------------------------------------------------------------------------
+    # CONFIGURACIÓN OFICIAL AIRFLOW 3.0 (AIP-72 / TASK SDK)
+    # --------------------------------------------------------------------------
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-ecodelivery_user}:${POSTGRES_PASSWORD:-ecodelivery_user_01**}@postgres:5432/${AIRFLOW_DB_NAME:-airflow_db}
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY}
+    AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW__WEBSERVER__SECRET_KEY}
+    
+    # Clave oficial de Airflow 3 para firma JWT de Execution API [api_auth]
+    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW__API_AUTH__JWT_SECRET}
+    
+    # URL de la Execution API (apunta al servicio airflow-api-server)
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/
+    
+    # FAB Auth Manager para compatibilidad de interfaz
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    PYTHONPATH: /opt/airflow
+    
+    # Refresco de DAGs en desarrollo
+    AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: 5
+    AIRFLOW__DAG_PROCESSOR__DAG_BUNDLE_REFRESH_INTERVAL: 5
+
+    # Conexiones para tareas ETL
+    AIRFLOW_OLTP_URI: postgresql+psycopg2://${POSTGRES_USER:-ecodelivery_user}:${POSTGRES_PASSWORD:-ecodelivery_user_01**}@postgres:5432/${POSTGRES_DB:-ecodelivery_db}
+    AIRFLOW_DWH_URI: postgresql+psycopg2://${POSTGRES_USER:-ecodelivery_user}:${POSTGRES_PASSWORD:-ecodelivery_user_01**}@postgres:5432/${DWH_DB_NAME:-ecodelivery_dwh}
+
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
@@ -21,7 +47,6 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: ecodelivery_postgres
-    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-ecodelivery_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecodelivery_user_01**}
@@ -36,6 +61,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: always
     networks:
       - ecodelivery_net
 
@@ -109,13 +135,7 @@ services:
   airflow-init:
     <<: *airflow-common
     container_name: ecodelivery_airflow_init
-    command: >
-      bash -c "
-      echo '=== Ejecutando migración de DB de Airflow 3.0 ===' &&
-      airflow db migrate &&
-      echo '=== Creando usuario administrador ===' &&
-      airflow users create --username ${AIRFLOW_ADMIN_USERNAME:-admin} --firstname ${AIRFLOW_ADMIN_FIRSTNAME:-Admin} --lastname ${AIRFLOW_ADMIN_LASTNAME:-User} --role Admin --email ${AIRFLOW_ADMIN_EMAIL:-admin@ecodelivery.com} --password ${AIRFLOW_ADMIN_PASSWORD:-admin} || true
-      "
+    command: bash /init_airflow.sh
     restart: "no"
 
 volumes:
