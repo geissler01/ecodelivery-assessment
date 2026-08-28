@@ -7,13 +7,19 @@ model Model
 		legacyRedirects
 		returnErrorValuesAsNull
 
-	annotation __PBI_TimeIntelligenceEnabled = 1
-	annotation PBI_ProTooling = ["DevMode"]
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["DevMode"]
+
+annotation PBI_QueryOrder = ["fact_pedidos","dim_cliente","dim_repartidor","dim_zona","dim_date"]
 
 ref table fact_pedidos
 ref table dim_cliente
 ref table dim_repartidor
 ref table dim_zona
 ref table dim_date
+ref table DateTableTemplate_a4060334-1222-4f4f-a97f-cbc3059d7104
+ref table LocalDateTable_d1a24b1d-315b-4543-af4a-6d0fae0e420d
 
 ref cultureInfo es-CO
+

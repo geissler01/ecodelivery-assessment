@@ -3,66 +3,83 @@ table dim_date
 
 	column date_sk
 		dataType: int64
-		sourceColumn: date_sk
 		lineageTag: f1a2b3c4-0005-0005-0005-000000000011
 		summarizeBy: none
+		sourceColumn: date_sk
 
 	column full_date
 		dataType: dateTime
-		sourceColumn: full_date
+		formatString: dd/MM/yyyy
 		lineageTag: f1a2b3c4-0005-0005-0005-000000000012
 		summarizeBy: none
-		formatString: dd/MM/yyyy
+		sourceColumn: full_date
+
+		variation Variación
+			isDefault
+			relationship: 14f4eefd-4c35-4b62-a4ec-3d94bbc6db0e
+			defaultHierarchy: LocalDateTable_d1a24b1d-315b-4543-af4a-6d0fae0e420d.'Jerarquía de fechas'
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	column year
 		dataType: int64
-		sourceColumn: year
 		lineageTag: f1a2b3c4-0005-0005-0005-000000000013
-		summarizeBy: none
+		summarizeBy: sum
+		sourceColumn: year
+
+		annotation SummarizationSetBy = Automatic
 
 	column quarter
 		dataType: int64
-		sourceColumn: quarter
 		lineageTag: f1a2b3c4-0005-0005-0005-000000000014
-		summarizeBy: none
+		summarizeBy: sum
+		sourceColumn: quarter
+
+		annotation SummarizationSetBy = Automatic
 
 	column month_number
 		dataType: int64
-		sourceColumn: month_number
 		lineageTag: f1a2b3c4-0005-0005-0005-000000000015
-		summarizeBy: none
+		summarizeBy: sum
+		sourceColumn: month_number
+
+		annotation SummarizationSetBy = Automatic
 
 	column month_name
 		dataType: string
-		sourceColumn: month_name
 		lineageTag: f1a2b3c4-0005-0005-0005-000000000016
 		summarizeBy: none
+		sourceColumn: month_name
 		sortByColumn: month_number
 
 	column day_of_month
 		dataType: int64
-		sourceColumn: day_of_month
 		lineageTag: f1a2b3c4-0005-0005-0005-000000000017
-		summarizeBy: none
+		summarizeBy: sum
+		sourceColumn: day_of_month
+
+		annotation SummarizationSetBy = Automatic
 
 	column day_of_week
 		dataType: string
-		sourceColumn: day_of_week
 		lineageTag: f1a2b3c4-0005-0005-0005-000000000018
 		summarizeBy: none
+		sourceColumn: day_of_week
 
 	column is_weekend
 		dataType: boolean
-		sourceColumn: is_weekend
 		lineageTag: f1a2b3c4-0005-0005-0005-000000000019
 		summarizeBy: none
+		sourceColumn: is_weekend
 
 	partition dim_date = m
 		mode: import
 		source =
-			let
-				Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh", [Query="SELECT * FROM gold.dim_date"])
-			in
-				Origen
+				let
+					Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh"),
+					dim_date_Table = Origen{[Schema="gold", Item="dim_date"]}[Data]
+				in
+					dim_date_Table
 
 	annotation PBI_ResultType = Table
+

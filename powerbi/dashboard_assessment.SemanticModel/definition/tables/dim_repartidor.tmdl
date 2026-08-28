@@ -3,52 +3,78 @@ table dim_repartidor
 
 	column repartidor_sk
 		dataType: int64
-		sourceColumn: repartidor_sk
 		lineageTag: f1a2b3c4-0003-0003-0003-000000000011
 		summarizeBy: none
+		sourceColumn: repartidor_sk
 
 	column user_id
 		dataType: string
-		sourceColumn: user_id
 		lineageTag: f1a2b3c4-0003-0003-0003-000000000012
 		summarizeBy: none
+		sourceColumn: user_id
 
 	column full_name
 		dataType: string
-		sourceColumn: full_name
 		lineageTag: f1a2b3c4-0003-0003-0003-000000000013
 		summarizeBy: none
+		sourceColumn: full_name
 
 	column gender
 		dataType: string
-		sourceColumn: gender
 		lineageTag: f1a2b3c4-0003-0003-0003-000000000014
 		summarizeBy: none
+		sourceColumn: gender
 
 	column age
 		dataType: int64
-		sourceColumn: age
 		lineageTag: f1a2b3c4-0003-0003-0003-000000000015
 		summarizeBy: none
+		sourceColumn: age
 
 	column tipo_vehiculo_predilecto
 		dataType: string
-		sourceColumn: tipo_vehiculo_predilecto
 		lineageTag: f1a2b3c4-0003-0003-0003-000000000016
 		summarizeBy: none
+		sourceColumn: tipo_vehiculo_predilecto
 
 	column zona_principal
 		dataType: string
-		sourceColumn: zona_principal
 		lineageTag: f1a2b3c4-0003-0003-0003-000000000017
 		summarizeBy: none
+		sourceColumn: zona_principal
+
+	column email
+		dataType: string
+		lineageTag: 4fab898b-2a88-4409-80ee-34bc84100696
+		summarizeBy: none
+		sourceColumn: email
+
+		annotation SummarizationSetBy = Automatic
+
+	column phone
+		dataType: string
+		lineageTag: 77a62920-1834-4e31-93d6-bd186fbfdd6f
+		summarizeBy: none
+		sourceColumn: phone
+
+		annotation SummarizationSetBy = Automatic
+
+	column avatar_url
+		dataType: string
+		lineageTag: 93b8a411-9c19-4b1a-a7b3-97d23d97a51a
+		summarizeBy: none
+		sourceColumn: avatar_url
+
+		annotation SummarizationSetBy = Automatic
 
 	partition dim_repartidor = m
 		mode: import
 		source =
-			let
-				Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh", [Query="SELECT * FROM gold.dim_repartidor"])
-			in
-				Origen
+				let
+					Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh"),
+					dim_repartidor_Table = Origen{[Schema="gold", Item="dim_repartidor"]}[Data]
+				in
+					dim_repartidor_Table
 
 	annotation PBI_ResultType = Table
+

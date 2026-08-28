@@ -1,0 +1,36 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "card_repartidores_activos",
+  "position": {
+    "x": 650,
+    "y": 30,
+    "width": 280,
+    "height": 120,
+    "z": 1000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_repartidor"
+                    }
+                  },
+                  "Property": "Repartidores Activos"
+                }
+              },
+              "queryRef": "dim_repartidor.Repartidores Activos",
+              "nativeQueryRef": "Repartidores Activos"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

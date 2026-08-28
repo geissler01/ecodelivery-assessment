@@ -3,42 +3,48 @@ table dim_zona
 
 	column zona_sk
 		dataType: int64
-		sourceColumn: zona_sk
 		lineageTag: f1a2b3c4-0004-0004-0004-000000000011
 		summarizeBy: none
+		sourceColumn: zona_sk
 
 	column nombre_zona
 		dataType: string
-		sourceColumn: nombre_zona
 		lineageTag: f1a2b3c4-0004-0004-0004-000000000012
 		summarizeBy: none
+		sourceColumn: nombre_zona
 
 	column latitud_centro
-		dataType: decimal
-		sourceColumn: latitud_centro
+		dataType: double
 		lineageTag: f1a2b3c4-0004-0004-0004-000000000013
-		summarizeBy: none
 		dataCategory: Latitude
+		summarizeBy: none
+		sourceColumn: latitud_centro
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column longitud_centro
-		dataType: decimal
-		sourceColumn: longitud_centro
+		dataType: double
 		lineageTag: f1a2b3c4-0004-0004-0004-000000000014
-		summarizeBy: none
 		dataCategory: Longitude
+		summarizeBy: none
+		sourceColumn: longitud_centro
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column region
 		dataType: string
-		sourceColumn: region
 		lineageTag: f1a2b3c4-0004-0004-0004-000000000015
 		summarizeBy: none
+		sourceColumn: region
 
 	partition dim_zona = m
 		mode: import
 		source =
-			let
-				Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh", [Query="SELECT * FROM gold.dim_zona"])
-			in
-				Origen
+				let
+					Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh"),
+					dim_zona_Table = Origen{[Schema="gold", Item="dim_zona"]}[Data]
+				in
+					dim_zona_Table
 
 	annotation PBI_ResultType = Table
+

@@ -1,64 +1,82 @@
 table dim_cliente
 	lineageTag: f1a2b3c4-0002-0002-0002-000000000001
 
+	measure 'Clientes Activos' = DISTINCTCOUNT(dim_cliente[cliente_sk])
+		formatString: #,0
+		lineageTag: f1a2b3c4-0002-0002-0002-000000000051
+
 	column cliente_sk
 		dataType: int64
-		sourceColumn: cliente_sk
 		lineageTag: f1a2b3c4-0002-0002-0002-000000000011
 		summarizeBy: none
+		sourceColumn: cliente_sk
 
 	column user_id
 		dataType: string
-		sourceColumn: user_id
 		lineageTag: f1a2b3c4-0002-0002-0002-000000000012
 		summarizeBy: none
+		sourceColumn: user_id
 
 	column full_name
 		dataType: string
-		sourceColumn: full_name
 		lineageTag: f1a2b3c4-0002-0002-0002-000000000013
 		summarizeBy: none
+		sourceColumn: full_name
 
 	column email
 		dataType: string
-		sourceColumn: email
 		lineageTag: f1a2b3c4-0002-0002-0002-000000000014
 		summarizeBy: none
+		sourceColumn: email
 
 	column gender
 		dataType: string
-		sourceColumn: gender
 		lineageTag: f1a2b3c4-0002-0002-0002-000000000015
 		summarizeBy: none
+		sourceColumn: gender
 
 	column age
 		dataType: int64
-		sourceColumn: age
 		lineageTag: f1a2b3c4-0002-0002-0002-000000000016
 		summarizeBy: none
+		sourceColumn: age
 
 	column age_group
 		dataType: string
-		sourceColumn: age_group
 		lineageTag: f1a2b3c4-0002-0002-0002-000000000017
 		summarizeBy: none
+		sourceColumn: age_group
 
 	column zona_principal
 		dataType: string
-		sourceColumn: zona_principal
 		lineageTag: f1a2b3c4-0002-0002-0002-000000000019
 		summarizeBy: none
+		sourceColumn: zona_principal
 
-	measure 'Clientes Activos' = DISTINCTCOUNT(dim_cliente[cliente_sk])
-		lineageTag: f1a2b3c4-0002-0002-0002-000000000051
-		formatString: #,0
+	column phone
+		dataType: string
+		lineageTag: 3565d341-8749-4edc-8250-b1523f46a9a6
+		summarizeBy: none
+		sourceColumn: phone
+
+		annotation SummarizationSetBy = Automatic
+
+	column avatar_url
+		dataType: string
+		lineageTag: 76793300-2705-4ff1-80f6-41b5857cbf06
+		summarizeBy: none
+		sourceColumn: avatar_url
+
+		annotation SummarizationSetBy = Automatic
 
 	partition dim_cliente = m
 		mode: import
 		source =
-			let
-				Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh", [Query="SELECT * FROM gold.dim_cliente"])
-			in
-				Origen
+				let
+					Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh"),
+					dim_cliente_Table = Origen{[Schema="gold", Item="dim_cliente"]}[Data]
+				in
+					dim_cliente_Table
 
 	annotation PBI_ResultType = Table
+

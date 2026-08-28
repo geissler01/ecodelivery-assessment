@@ -3,9 +3,9 @@ relationship r_fact_cliente
 	toColumn: dim_cliente.cliente_sk
 
 relationship r_fact_repartidor
+	isActive: false
 	fromColumn: fact_pedidos.repartidor_sk
 	toColumn: dim_repartidor.repartidor_sk
-	isActive: false
 
 relationship r_fact_zona
 	fromColumn: fact_pedidos.zona_sk
@@ -14,3 +14,9 @@ relationship r_fact_zona
 relationship r_fact_date
 	fromColumn: fact_pedidos.date_sk
 	toColumn: dim_date.date_sk
+
+relationship 14f4eefd-4c35-4b62-a4ec-3d94bbc6db0e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dim_date.full_date
+	toColumn: LocalDateTable_d1a24b1d-315b-4543-af4a-6d0fae0e420d.Date
+

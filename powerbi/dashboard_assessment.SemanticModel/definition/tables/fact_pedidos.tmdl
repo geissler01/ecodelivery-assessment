@@ -1,165 +1,175 @@
 table fact_pedidos
 	lineageTag: f1a2b3c4-0001-0001-0001-000000000001
 
+	measure 'Total Pedidos' = COUNTROWS(fact_pedidos)
+		formatString: #,0
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000051
+
+	measure 'Pedidos Entregados' = CALCULATE(COUNTROWS(fact_pedidos), fact_pedidos[estado] = "entregado")
+		formatString: #,0
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000052
+
+	measure 'Tasa de Entrega %' = DIVIDE([Pedidos Entregados], [Total Pedidos], 0) * 100
+		formatString: 0.0"%"
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000053
+
+	measure 'Tiempo Promedio Entrega (min)' = CALCULATE(AVERAGE(fact_pedidos[tiempo_entrega_minutos]), fact_pedidos[estado] = "entregado")
+		formatString: #,0.0
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000054
+
+	measure 'Ingresos Totales' = SUM(fact_pedidos[monto])
+		formatString: $ #,0.00
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000055
+
+	measure 'Costos Totales' = SUM(fact_pedidos[costo_operacion])
+		formatString: $ #,0.00
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000056
+
+	measure 'Margen Bruto Total' = SUM(fact_pedidos[margen_bruto])
+		formatString: $ #,0.00
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000057
+
+	measure 'Margen %' = DIVIDE([Margen Bruto Total], [Ingresos Totales], 0) * 100
+		formatString: 0.0"%"
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000058
+
+	measure 'Ticket Promedio' = AVERAGE(fact_pedidos[monto])
+		formatString: $ #,0.00
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000059
+
+	measure 'Pedidos Fin de Semana' = CALCULATE(COUNTROWS(fact_pedidos), dim_date[is_weekend] = TRUE())
+		formatString: #,0
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000060
+
+	measure 'Pedidos No Entregados' = CALCULATE(COUNTROWS(fact_pedidos), fact_pedidos[estado] <> "entregado")
+		formatString: #,0
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000061
+
 	column pedido_sk
 		dataType: int64
-		sourceColumn: pedido_sk
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000011
 		summarizeBy: none
+		sourceColumn: pedido_sk
 
 	column id_pedido
 		dataType: string
-		sourceColumn: id_pedido
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000012
 		summarizeBy: none
+		sourceColumn: id_pedido
 
 	column cliente_sk
 		dataType: int64
-		sourceColumn: cliente_sk
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000013
 		summarizeBy: none
+		sourceColumn: cliente_sk
 
 	column repartidor_sk
 		dataType: int64
-		sourceColumn: repartidor_sk
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000014
 		summarizeBy: none
+		sourceColumn: repartidor_sk
 
 	column zona_sk
 		dataType: int64
-		sourceColumn: zona_sk
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000015
 		summarizeBy: none
+		sourceColumn: zona_sk
 
 	column date_sk
 		dataType: int64
-		sourceColumn: date_sk
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000016
 		summarizeBy: none
+		sourceColumn: date_sk
 
 	column estado
 		dataType: string
-		sourceColumn: estado
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000017
 		summarizeBy: none
+		sourceColumn: estado
 
 	column metodo_pago
 		dataType: string
-		sourceColumn: metodo_pago
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000018
 		summarizeBy: none
+		sourceColumn: metodo_pago
 
 	column tipo_vehiculo
 		dataType: string
-		sourceColumn: tipo_vehiculo
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000019
 		summarizeBy: none
+		sourceColumn: tipo_vehiculo
 
 	column monto
-		dataType: decimal
-		sourceColumn: monto
+		dataType: double
+		formatString: #,0.00
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000020
 		summarizeBy: sum
-		formatString: #,0.00
+		sourceColumn: monto
 
 	column costo_operacion
-		dataType: decimal
-		sourceColumn: costo_operacion
+		dataType: double
+		formatString: #,0.00
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000021
 		summarizeBy: sum
-		formatString: #,0.00
+		sourceColumn: costo_operacion
 
 	column margen_bruto
-		dataType: decimal
-		sourceColumn: margen_bruto
+		dataType: double
+		formatString: #,0.00
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000022
 		summarizeBy: sum
-		formatString: #,0.00
+		sourceColumn: margen_bruto
 
 	column tiempo_entrega_minutos
 		dataType: int64
-		sourceColumn: tiempo_entrega_minutos
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000023
 		summarizeBy: average
+		sourceColumn: tiempo_entrega_minutos
 
 	column latitud
-		dataType: decimal
-		sourceColumn: latitud
+		dataType: double
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000024
-		summarizeBy: none
 		dataCategory: Latitude
+		summarizeBy: sum
+		sourceColumn: latitud
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column longitud
-		dataType: decimal
-		sourceColumn: longitud
+		dataType: double
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000025
-		summarizeBy: none
 		dataCategory: Longitude
+		summarizeBy: sum
+		sourceColumn: longitud
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column fecha_creacion
 		dataType: dateTime
-		sourceColumn: fecha_creacion
+		formatString: dd/MM/yyyy HH:mm
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000026
 		summarizeBy: none
-		formatString: dd/MM/yyyy HH:mm
+		sourceColumn: fecha_creacion
 
 	column fecha_entrega
 		dataType: dateTime
-		sourceColumn: fecha_entrega
+		formatString: dd/MM/yyyy HH:mm
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000027
 		summarizeBy: none
-		formatString: dd/MM/yyyy HH:mm
-
-	measure 'Total Pedidos' = COUNTROWS(fact_pedidos)
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000051
-		formatString: #,0
-
-	measure 'Pedidos Entregados' = CALCULATE(COUNTROWS(fact_pedidos), fact_pedidos[estado] = "entregado")
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000052
-		formatString: #,0
-
-	measure 'Tasa de Entrega %' = DIVIDE([Pedidos Entregados], [Total Pedidos], 0) * 100
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000053
-		formatString: 0.0"%"
-
-	measure 'Tiempo Promedio Entrega (min)' = CALCULATE(AVERAGE(fact_pedidos[tiempo_entrega_minutos]), fact_pedidos[estado] = "entregado")
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000054
-		formatString: #,0.0
-
-	measure 'Ingresos Totales' = SUM(fact_pedidos[monto])
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000055
-		formatString: $ #,0.00
-
-	measure 'Costos Totales' = SUM(fact_pedidos[costo_operacion])
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000056
-		formatString: $ #,0.00
-
-	measure 'Margen Bruto Total' = SUM(fact_pedidos[margen_bruto])
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000057
-		formatString: $ #,0.00
-
-	measure 'Margen %' = DIVIDE([Margen Bruto Total], [Ingresos Totales], 0) * 100
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000058
-		formatString: 0.0"%"
-
-	measure 'Ticket Promedio' = AVERAGE(fact_pedidos[monto])
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000059
-		formatString: $ #,0.00
-
-	measure 'Pedidos Fin de Semana' = CALCULATE(COUNTROWS(fact_pedidos), dim_date[is_weekend] = TRUE())
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000060
-		formatString: #,0
-
-	measure 'Pedidos No Entregados' = CALCULATE(COUNTROWS(fact_pedidos), fact_pedidos[estado] <> "entregado")
-		lineageTag: f1a2b3c4-0001-0001-0001-000000000061
-		formatString: #,0
+		sourceColumn: fecha_entrega
 
 	partition fact_pedidos = m
 		mode: import
 		source =
-			let
-				Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh", [Query="SELECT * FROM gold.fact_pedidos"])
-			in
-				Origen
+				let
+					Origen = PostgreSQL.Database("100.60.229.203", "ecodelivery_dwh"),
+					fact_pedidos_Table = Origen{[Schema="gold", Item="fact_pedidos"]}[Data]
+				in
+					fact_pedidos_Table
 
 	annotation PBI_ResultType = Table
+
