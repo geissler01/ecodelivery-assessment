@@ -59,29 +59,63 @@ def exchange_code_for_github_user(code: str) -> dict:
         "code": code,
         "redirect_uri": settings.GITHUB_REDIRECT_URI,
     }
-    with httpx.Client(timeout=10.0) as client:
-        headers = {"Accept": "application/json"}
-        token_res = client.post(token_url, data=github_data, headers=headers)
+    default_headers = {
+        "Accept": "application/json",
+        "User-Agent": "EcoDelivery-Platform/1.0",
+    }
+    with httpx.Client(timeout=10.0, headers=default_headers) as client:
+        token_res = client.post(token_url, data=github_data)
         token_res.raise_for_status()
-        github_token = token_res.json().get("access_token")
+        token_json = token_res.json()
+
+        if "error" in token_json:
+            error_desc = token_json.get("error_description", token_json.get("error"))
+            raise ValueError(f"GitHub OAuth error: {error_desc}")
+
+        github_token = token_json.get("access_token")
+        if not github_token:
+            raise ValueError(f"No se recibió access_token de GitHub: {token_json}")
 
         url_user_info = "https://api.github.com/user"
-        headers_user = {"Authorization": f"Bearer {github_token}"}
+        headers_user = {
+            "Authorization": f"Bearer {github_token}",
+            "User-Agent": "EcoDelivery-Platform/1.0",
+            "Accept": "application/json",
+        }
         user_res = client.get(url_user_info, headers=headers_user)
         user_res.raise_for_status()
         user_data = user_res.json()
 
         email = user_data.get("email")
-        name = user_data.get("name") or user_data.get("login")
+        name = user_data.get("name") or user_data.get("login") or "Usuario GitHub"
+        username = user_data.get("login", "github_user")
 
-        # Si el correo de GitHub es privado, consultar el endpoint secundario
+        # Si el correo de GitHub es privado en el perfil, consultar el endpoint secundario /user/emails
         if not email:
-            emails_res = client.get("https://api.github.com/user/emails", headers=headers_user)
-            if emails_res.status_code == 200:
-                emails_list = emails_res.json()
-                email = next(
-                    (item.get("email") for item in emails_list if item.get("primary") and item.get("verified")),
-                    None,
-                )
+            try:
+                emails_res = client.get("https://api.github.com/user/emails", headers=headers_user)
+                if emails_res.status_code == 200:
+                    emails_list = emails_res.json()
+                    if isinstance(emails_list, list) and len(emails_list) > 0:
+                        # 1. Buscar email principal y verificado
+                        email = next(
+                            (item.get("email") for item in emails_list if item.get("primary") and item.get("verified")),
+                            None,
+                        )
+                        # 2. Buscar cualquier email verificado
+                        if not email:
+                            email = next(
+                                (item.get("email") for item in emails_list if item.get("verified")),
+                                None,
+                            )
+                        # 3. Tomar el primer email disponible
+                        if not email:
+                            email = emails_list[0].get("email")
+            except Exception:
+                pass
+
+        # Si aún no hay email, fallback con el dominio seguro de no-reply de GitHub
+        if not email:
+            email = f"{username}@users.noreply.github.com"
 
         return {"email": email, "name": name}
