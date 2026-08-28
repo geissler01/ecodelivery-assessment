@@ -1,0 +1,337 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.3.1/schema.json",
+  "name": "Resumen Ejecutivo",
+  "displayName": "📊 Resumen Ejecutivo",
+  "displayOption": "FitToWidth",
+  "width": 1280,
+  "height": 720,
+  "defaultFilterBehavior": "Passthrough",
+  "visuals": [
+    {
+      "id": "kpi-total-pedidos",
+      "position": { "x": 20, "y": 80, "z": 0, "width": 220, "height": 110 },
+      "visual": {
+        "visualType": "card",
+        "query": {
+          "queryState": {
+            "Values": {
+              "projections": [
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Total Pedidos" } },
+                  "queryRef": "fact_pedidos.Total Pedidos",
+                  "active": true
+                }
+              ]
+            }
+          }
+        },
+        "objects": {
+          "labels": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": "#FFFFFF" } }, "fontSize": { "expr": { "Literal": { "Value": "12D" } } } } }],
+          "categoryLabels": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": "#CBD5E1" } } } }],
+          "background": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": "#1E3A5F" } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+          "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+        },
+        "title": { "text": "Total Pedidos", "visible": true }
+      }
+    },
+    {
+      "id": "kpi-entregados",
+      "position": { "x": 255, "y": 80, "z": 0, "width": 220, "height": 110 },
+      "visual": {
+        "visualType": "card",
+        "query": {
+          "queryState": {
+            "Values": {
+              "projections": [
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Pedidos Entregados" } },
+                  "queryRef": "fact_pedidos.Pedidos Entregados",
+                  "active": true
+                }
+              ]
+            }
+          }
+        },
+        "objects": {
+          "background": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": "#166534" } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }]
+        },
+        "title": { "text": "Entregados", "visible": true }
+      }
+    },
+    {
+      "id": "kpi-tasa",
+      "position": { "x": 490, "y": 80, "z": 0, "width": 220, "height": 110 },
+      "visual": {
+        "visualType": "card",
+        "query": {
+          "queryState": {
+            "Values": {
+              "projections": [
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Tasa de Entrega %" } },
+                  "queryRef": "fact_pedidos.Tasa de Entrega %",
+                  "active": true
+                }
+              ]
+            }
+          }
+        },
+        "objects": {
+          "background": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": "#1D4ED8" } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }]
+        },
+        "title": { "text": "Tasa de Entrega", "visible": true }
+      }
+    },
+    {
+      "id": "kpi-ingresos",
+      "position": { "x": 725, "y": 80, "z": 0, "width": 220, "height": 110 },
+      "visual": {
+        "visualType": "card",
+        "query": {
+          "queryState": {
+            "Values": {
+              "projections": [
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Ingresos Totales" } },
+                  "queryRef": "fact_pedidos.Ingresos Totales",
+                  "active": true
+                }
+              ]
+            }
+          }
+        },
+        "objects": {
+          "background": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": "#92400E" } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }]
+        },
+        "title": { "text": "Ingresos Totales", "visible": true }
+      }
+    },
+    {
+      "id": "kpi-margen",
+      "position": { "x": 960, "y": 80, "z": 0, "width": 220, "height": 110 },
+      "visual": {
+        "visualType": "card",
+        "query": {
+          "queryState": {
+            "Values": {
+              "projections": [
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Margen %" } },
+                  "queryRef": "fact_pedidos.Margen %",
+                  "active": true
+                }
+              ]
+            }
+          }
+        },
+        "objects": {
+          "background": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": "#4C1D95" } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }]
+        },
+        "title": { "text": "Margen Bruto %", "visible": true }
+      }
+    },
+    {
+      "id": "bar-pedidos-zona",
+      "position": { "x": 20, "y": 210, "z": 0, "width": 560, "height": 240 },
+      "visual": {
+        "visualType": "barChart",
+        "query": {
+          "queryState": {
+            "Category": {
+              "projections": [
+                {
+                  "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_zona" } }, "Property": "nombre_zona" } },
+                  "queryRef": "dim_zona.nombre_zona"
+                }
+              ]
+            },
+            "Y": {
+              "projections": [
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Total Pedidos" } },
+                  "queryRef": "fact_pedidos.Total Pedidos"
+                },
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Pedidos Entregados" } },
+                  "queryRef": "fact_pedidos.Pedidos Entregados"
+                }
+              ]
+            }
+          }
+        },
+        "title": { "text": "Pedidos por Zona (Total vs Entregados)", "visible": true }
+      }
+    },
+    {
+      "id": "donut-estado",
+      "position": { "x": 600, "y": 210, "z": 0, "width": 280, "height": 240 },
+      "visual": {
+        "visualType": "donutChart",
+        "query": {
+          "queryState": {
+            "Category": {
+              "projections": [
+                {
+                  "field": { "Column": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "estado" } },
+                  "queryRef": "fact_pedidos.estado"
+                }
+              ]
+            },
+            "Y": {
+              "projections": [
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Total Pedidos" } },
+                  "queryRef": "fact_pedidos.Total Pedidos"
+                }
+              ]
+            }
+          }
+        },
+        "title": { "text": "Distribución por Estado", "visible": true }
+      }
+    },
+    {
+      "id": "donut-metodo-pago",
+      "position": { "x": 895, "y": 210, "z": 0, "width": 280, "height": 240 },
+      "visual": {
+        "visualType": "donutChart",
+        "query": {
+          "queryState": {
+            "Category": {
+              "projections": [
+                {
+                  "field": { "Column": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "metodo_pago" } },
+                  "queryRef": "fact_pedidos.metodo_pago"
+                }
+              ]
+            },
+            "Y": {
+              "projections": [
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Total Pedidos" } },
+                  "queryRef": "fact_pedidos.Total Pedidos"
+                }
+              ]
+            }
+          }
+        },
+        "title": { "text": "Método de Pago", "visible": true }
+      }
+    },
+    {
+      "id": "line-ingresos-mes",
+      "position": { "x": 20, "y": 465, "z": 0, "width": 740, "height": 230 },
+      "visual": {
+        "visualType": "lineChart",
+        "query": {
+          "queryState": {
+            "Category": {
+              "projections": [
+                {
+                  "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_date" } }, "Property": "month_name" } },
+                  "queryRef": "dim_date.month_name"
+                }
+              ]
+            },
+            "Y": {
+              "projections": [
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Ingresos Totales" } },
+                  "queryRef": "fact_pedidos.Ingresos Totales"
+                },
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Costos Totales" } },
+                  "queryRef": "fact_pedidos.Costos Totales"
+                },
+                {
+                  "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "Margen Bruto Total" } },
+                  "queryRef": "fact_pedidos.Margen Bruto Total"
+                }
+              ]
+            }
+          }
+        },
+        "title": { "text": "Ingresos, Costos y Margen por Mes", "visible": true }
+      }
+    },
+    {
+      "id": "slicer-zona",
+      "position": { "x": 775, "y": 465, "z": 0, "width": 200, "height": 230 },
+      "visual": {
+        "visualType": "slicer",
+        "query": {
+          "queryState": {
+            "Values": {
+              "projections": [
+                {
+                  "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_zona" } }, "Property": "nombre_zona" } },
+                  "queryRef": "dim_zona.nombre_zona"
+                }
+              ]
+            }
+          }
+        },
+        "objects": {
+          "data": [{ "properties": { "mode": { "expr": { "Literal": { "Value": "'Dropdown'" } } } } }]
+        },
+        "title": { "text": "Zona", "visible": true }
+      }
+    },
+    {
+      "id": "slicer-estado",
+      "position": { "x": 990, "y": 465, "z": 0, "width": 200, "height": 115 },
+      "visual": {
+        "visualType": "slicer",
+        "query": {
+          "queryState": {
+            "Values": {
+              "projections": [
+                {
+                  "field": { "Column": { "Expression": { "SourceRef": { "Entity": "fact_pedidos" } }, "Property": "estado" } },
+                  "queryRef": "fact_pedidos.estado"
+                }
+              ]
+            }
+          }
+        },
+        "objects": {
+          "data": [{ "properties": { "mode": { "expr": { "Literal": { "Value": "'Dropdown'" } } } } }]
+        },
+        "title": { "text": "Estado", "visible": true }
+      }
+    },
+    {
+      "id": "slicer-year",
+      "position": { "x": 990, "y": 580, "z": 0, "width": 200, "height": 115 },
+      "visual": {
+        "visualType": "slicer",
+        "query": {
+          "queryState": {
+            "Values": {
+              "projections": [
+                {
+                  "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_date" } }, "Property": "year" } },
+                  "queryRef": "dim_date.year"
+                }
+              ]
+            }
+          }
+        },
+        "objects": {
+          "data": [{ "properties": { "mode": { "expr": { "Literal": { "Value": "'Dropdown'" } } } } }]
+        },
+        "title": { "text": "Año", "visible": true }
+      }
+    }
+  ],
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": { "solid": { "color": "#0F1629" } },
+          "transparency": { "expr": { "Literal": { "Value": "0D" } } }
+        }
+      }
+    ]
+  }
+}
