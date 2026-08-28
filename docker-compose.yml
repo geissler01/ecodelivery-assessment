@@ -89,6 +89,7 @@ services:
       - certbot_var:/var/www/certbot
     depends_on:
       - backend
+      - airflow-api-server
     networks:
       - ecodelivery_net
 

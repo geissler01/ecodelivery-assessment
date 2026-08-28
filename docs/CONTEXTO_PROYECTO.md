@@ -15,9 +15,12 @@
 
 * **Proveedor:** AWS Lightsail (Ubuntu Linux, Docker y Docker Compose).
 * **IP Estática Pública:** `100.60.229.203` (Usuario SSH: `gcache`).
-* **Dominio / DNS Activo:** `http://ecodelivery.geisler.coderhivex.com`
+* **Dominios / DNS Activos:**
+  * **Backend API (FastAPI):** `http://ecodelivery.geisler.coderhivex.com`
+  * **Apache Airflow UI:** `http://airflow.geisler.coderhivex.com`
 * **Base de Datos:** PostgreSQL en contenedor Docker (`ecodelivery_db`, usuario: `ecodelivery_user`, password: `ecodelivery_secure_pass`, puerto interno: 5432).
 * **Backend API:** FastAPI corriendo en contenedor Docker (`backend`, puerto interno: 8000, mapeado a `80` o reverse proxy NGINX).
+* **Airflow API Server:** Airflow 3.0 Web UI (`airflow-api-server`, puerto interno: 8080, reverse proxy NGINX).
 
 ---
 
