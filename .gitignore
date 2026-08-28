@@ -114,12 +114,18 @@ app_flutter/android/app/release/
 **/ios/.symlinks/
 
 # ------------------------------------------------------------------------------
-# 7. POWER BI (ARCHIVOS TEMPORALES & CACHÉ)
+# 7. POWER BI (ARCHIVOS TEMPORALES, PROYECTOS PBIP & CACHÉ BINARIA)
 # ------------------------------------------------------------------------------
+**/.pbi/localSettings.json
+**/.pbi/editorSettings.json
+**/.pbi/cache.abf
 *.tmp.pbix
+*.tmp.pbip
 powerbi/**/~*
 powerbi/**/$*
 powerbi/**/Temp*
+**/~*
+**/$*
 
 # ------------------------------------------------------------------------------
 # 8. EDITORES & IDES

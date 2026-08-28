@@ -129,6 +129,32 @@ services:
     container_name: ecodelivery_airflow_init
     command: >
       bash -c "
+      echo '=== Asegurando existencia de bases de datos (airflow_db y ecodelivery_dwh) ===' &&
+      python -c '
+      import psycopg2, os
+      from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+      user = os.getenv(\"POSTGRES_USER\", \"ecodelivery_user\")
+      pwd = os.getenv(\"POSTGRES_PASSWORD\", \"ecodelivery_user_01**\")
+      host = os.getenv(\"POSTGRES_HOST\", \"postgres\")
+      conn = psycopg2.connect(host=host, port=5432, user=user, password=pwd, dbname=\"ecodelivery_db\")
+      conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+      cur = conn.cursor()
+      for db in [\"airflow_db\", \"ecodelivery_dwh\"]:
+          cur.execute(f\"SELECT 1 FROM pg_database WHERE datname=\x27{db}\x27;\")
+          if not cur.fetchone():
+              cur.execute(f\"CREATE DATABASE {db};\")
+              print(f\">>> Base de datos {db} creada con éxito.\")
+      conn.close()
+      
+      # Conectar a ecodelivery_dwh para crear esquemas
+      conn_dwh = psycopg2.connect(host=host, port=5432, user=user, password=pwd, dbname=\"ecodelivery_dwh\")
+      conn_dwh.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+      cur_dwh = conn_dwh.cursor()
+      for schema in [\"bronze\", \"silver\", \"gold\"]:
+          cur_dwh.execute(f\"CREATE SCHEMA IF NOT EXISTS {schema}; GRANT ALL ON SCHEMA {schema} TO {user};\")
+      conn_dwh.close()
+      print(\">>> Esquemas bronze, silver y gold asegurados en ecodelivery_dwh.\")
+      ' &&
       echo '=== Ejecutando migración de DB de Airflow ===' &&
       airflow db migrate &&
       echo '=== Creando usuario administrador ===' &&
