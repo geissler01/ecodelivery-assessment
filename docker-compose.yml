@@ -147,6 +147,7 @@ services:
   airflow-init:
     <<: *airflow-common
     container_name: ecodelivery_airflow_init
+    user: "0:0"
     command: bash /init_airflow.sh
     restart: "no"
 
