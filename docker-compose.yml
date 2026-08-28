@@ -2,26 +2,8 @@ x-airflow-common: &airflow-common
   build:
     context: ./airflow
     dockerfile: Dockerfile
-  environment: &airflow-common-env
-    # Configuración oficial Airflow 3.0 (AIP-72 / Task SDK)
-    AIRFLOW__CORE__EXECUTOR: LocalExecutor
-    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-ecodelivery_user}:${POSTGRES_PASSWORD:-ecodelivery_user_01**}@postgres:5432/${AIRFLOW_DB_NAME:-airflow_db}
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY:-ny1LqUawxCCMONsG-jG5n1JbfgK83Q3rG8N59XYzOvg=}
-    AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW__WEBSERVER__SECRET_KEY:-3f55ead9c0ca9fc167dca22ec35c7393a4eb74666673863df1c2691bac6e33e8}
-    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW__API_AUTH__JWT_SECRET:-9cf786ebdbf503bf523c25be9a166dca35d7b0c7f5b9c39d434c38abf8e3de4d}
-    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/
-    AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
-    PYTHONPATH: /opt/airflow
-    
-    # URIs de conexión a las bases de datos
-    AIRFLOW_OLTP_URI: postgresql+psycopg2://${POSTGRES_USER:-ecodelivery_user}:${POSTGRES_PASSWORD:-ecodelivery_user_01**}@postgres:5432/${POSTGRES_DB:-ecodelivery_db}
-    AIRFLOW_DWH_URI: postgresql+psycopg2://${POSTGRES_USER:-ecodelivery_user}:${POSTGRES_PASSWORD:-ecodelivery_user_01**}@postgres:5432/${DWH_DB_NAME:-ecodelivery_dwh}
-
-    # Refresco rápido de DAGs en desarrollo
-    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 5
-    AIRFLOW__DAG_PROCESSOR__DAG_BUNDLE_REFRESH_INTERVAL: 5
-
+  env_file:
+    - .env
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
@@ -129,36 +111,10 @@ services:
     container_name: ecodelivery_airflow_init
     command: >
       bash -c "
-      echo '=== Asegurando existencia de bases de datos (airflow_db y ecodelivery_dwh) ===' &&
-      python -c '
-      import psycopg2, os
-      from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-      user = os.getenv(\"POSTGRES_USER\", \"ecodelivery_user\")
-      pwd = os.getenv(\"POSTGRES_PASSWORD\", \"ecodelivery_user_01**\")
-      host = os.getenv(\"POSTGRES_HOST\", \"postgres\")
-      conn = psycopg2.connect(host=host, port=5432, user=user, password=pwd, dbname=\"ecodelivery_db\")
-      conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-      cur = conn.cursor()
-      for db in [\"airflow_db\", \"ecodelivery_dwh\"]:
-          cur.execute(f\"SELECT 1 FROM pg_database WHERE datname=\x27{db}\x27;\")
-          if not cur.fetchone():
-              cur.execute(f\"CREATE DATABASE {db};\")
-              print(f\">>> Base de datos {db} creada con éxito.\")
-      conn.close()
-      
-      # Conectar a ecodelivery_dwh para crear esquemas
-      conn_dwh = psycopg2.connect(host=host, port=5432, user=user, password=pwd, dbname=\"ecodelivery_dwh\")
-      conn_dwh.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-      cur_dwh = conn_dwh.cursor()
-      for schema in [\"bronze\", \"silver\", \"gold\"]:
-          cur_dwh.execute(f\"CREATE SCHEMA IF NOT EXISTS {schema}; GRANT ALL ON SCHEMA {schema} TO {user};\")
-      conn_dwh.close()
-      print(\">>> Esquemas bronze, silver y gold asegurados en ecodelivery_dwh.\")
-      ' &&
-      echo '=== Ejecutando migración de DB de Airflow ===' &&
+      echo '=== Ejecutando migración de DB de Airflow 3.0 ===' &&
       airflow db migrate &&
       echo '=== Creando usuario administrador ===' &&
-      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@ecodelivery.com --password ${AIRFLOW_ADMIN_PASSWORD:-admin} || true
+      airflow users create --username ${AIRFLOW_ADMIN_USERNAME:-admin} --firstname ${AIRFLOW_ADMIN_FIRSTNAME:-Admin} --lastname ${AIRFLOW_ADMIN_LASTNAME:-User} --role Admin --email ${AIRFLOW_ADMIN_EMAIL:-admin@ecodelivery.com} --password ${AIRFLOW_ADMIN_PASSWORD:-admin} || true
       "
     restart: "no"
 
