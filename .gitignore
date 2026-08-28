@@ -1,13 +1,43 @@
-# Byte-compiled / optimized / DLL files
+# ==============================================================================
+# .gitignore - ECODELIVERY FULL-STACK & DATA PLATFORM
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. AGENTES IA, CONTEXTO & HERRAMIENTAS DE DESARROLLO ASISTIDO
+# ------------------------------------------------------------------------------
+.gemini/
+.agents/
+.agent/
+.system_generated/
+brain/
+scratch/
+artifacts/
+*.agent
+.cursor/
+.windsurf/
+.cline/
+.claude/
+.copilot/
+.continue/
+.context/
+*.context
+context.json
+context_*.md
+implementation_plan.md
+walkthrough.md
+plan.md
+
+# ------------------------------------------------------------------------------
+# 2. PYTHON & AMBIENTES VIRTUALES
+# ------------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
 build/
 develop-eggs/
 dist/
@@ -26,47 +56,83 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
-.env
-.venv
+# Entornos virtuales
+.venv/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
 
-# IDE / Editor configs
+# ------------------------------------------------------------------------------
+# 3. VARIABLES DE ENTORNO Y SECRETOS CRIPTOGRÁFICOS
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.crt
+*.pfx
+
+# ------------------------------------------------------------------------------
+# 4. APACHE AIRFLOW
+# ------------------------------------------------------------------------------
+airflow/logs/
+airflow/airflow.db
+airflow/airflow-webserver.pid
+airflow/unittests.cfg
+
+# ------------------------------------------------------------------------------
+# 5. BASES DE DATOS & VOLÚMENES DOCKER
+# ------------------------------------------------------------------------------
+postgres_data/
+ecodelivery_postgres_data/
+certbot_etc/
+certbot_var/
+*.sqlite3
+*.db
+
+# ------------------------------------------------------------------------------
+# 6. FRONTEND MÓVIL (FLUTTER & DART)
+# ------------------------------------------------------------------------------
+app_flutter/.dart_tool/
+app_flutter/.flutter-plugins
+app_flutter/.flutter-plugins-dependencies
+app_flutter/.packages
+app_flutter/.pub-cache/
+app_flutter/.pub/
+app_flutter/build/
+app_flutter/ios/Flutter/Generated.xcconfig
+app_flutter/ios/Flutter/flutter_export_environment.sh
+app_flutter/android/local.properties
+app_flutter/android/.gradle/
+app_flutter/android/app/debug/
+app_flutter/android/app/profile/
+app_flutter/android/app/release/
+**/ios/Pods/
+**/ios/.symlinks/
+
+# ------------------------------------------------------------------------------
+# 7. POWER BI (ARCHIVOS TEMPORALES & CACHÉ)
+# ------------------------------------------------------------------------------
+*.tmp.pbix
+powerbi/**/~*
+powerbi/**/$*
+powerbi/**/Temp*
+
+# ------------------------------------------------------------------------------
+# 8. EDITORES & IDES
+# ------------------------------------------------------------------------------
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Database & Docker storage
-postgres_data/
-ecodelivery_postgres_data/
-*.sqlite3
-*.db
-
-# Flutter / Dart
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
-/build/
-android/app/debug/
-android/app/profile/
-android/app/release/
-
-# OS generated files
+# ------------------------------------------------------------------------------
+# 9. SISTEMA OPERATIVO & TEMPORALES
+# ------------------------------------------------------------------------------
 .DS_Store
 .DS_Store?
 ._*
@@ -74,3 +140,8 @@ android/app/release/
 .Trashes
 ehthumbs.db
 Thumbs.db
+*.tmp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
