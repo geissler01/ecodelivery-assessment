@@ -20,6 +20,8 @@ x-airflow-common: &airflow-common
     
     # FAB Auth Manager para compatibilidad de interfaz
     AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    # URL base del servidor — necesaria para que FAB construya redirects correctos detrás de nginx
+    AIRFLOW__WEBSERVER__BASE_URL: ${AIRFLOW__WEBSERVER__BASE_URL:-http://airflow.geisler.coderhivex.com}
     PYTHONPATH: /opt/airflow
     
     # Refresco de DAGs en desarrollo
