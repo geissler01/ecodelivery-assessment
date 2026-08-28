@@ -25,6 +25,8 @@ x-airflow-common: &airflow-common
     # Refresco de DAGs en desarrollo
     AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: 5
     AIRFLOW__DAG_PROCESSOR__DAG_BUNDLE_REFRESH_INTERVAL: 5
+    # Limitar workers del api-server (evitar OOM en VPS con RAM limitada)
+    AIRFLOW__API_SERVER__WORKERS: ${AIRFLOW__API_SERVER__WORKERS:-1}
 
     # Conexiones para tareas ETL
     AIRFLOW_OLTP_URI: postgresql+psycopg2://${POSTGRES_USER:-ecodelivery_user}:${POSTGRES_PASSWORD:-ecodelivery_user_01**}@postgres:5432/${POSTGRES_DB:-ecodelivery_db}
@@ -121,15 +123,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    depends_on:
-      airflow-init:
-        condition: service_completed_successfully
-    restart: always
-
-  airflow-triggerer:
-    <<: *airflow-common
-    container_name: ecodelivery_airflow_triggerer
-    command: triggerer
     depends_on:
       airflow-init:
         condition: service_completed_successfully
