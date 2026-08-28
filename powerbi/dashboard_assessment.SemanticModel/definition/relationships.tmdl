@@ -3,7 +3,6 @@ relationship r_fact_cliente
 	toColumn: dim_cliente.cliente_sk
 
 relationship r_fact_repartidor
-	isActive: false
 	fromColumn: fact_pedidos.repartidor_sk
 	toColumn: dim_repartidor.repartidor_sk
 

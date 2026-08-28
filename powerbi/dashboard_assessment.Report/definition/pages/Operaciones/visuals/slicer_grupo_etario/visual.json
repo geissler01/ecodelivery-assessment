@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "name": "slicer_grupo_etario",
   "position": {
     "x": 650,
     "y": 570,
-    "width": 600,
+    "z": 3000,
     "height": 120,
-    "z": 3000
+    "width": 600
   },
   "visual": {
     "visualType": "slicer",
@@ -22,15 +22,83 @@
                       "Entity": "dim_cliente"
                     }
                   },
-                  "Property": "grupo_etario"
+                  "Property": "age_group"
                 }
               },
-              "queryRef": "dim_cliente.grupo_etario",
-              "nativeQueryRef": "Filtrar por Segmento Etario"
+              "queryRef": "dim_cliente.age_group",
+              "nativeQueryRef": "Filtrar por Segmento Etario",
+              "active": true
             }
           ]
         }
       }
+    },
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "filter": {
+              "filter": {
+                "Version": 2,
+                "From": [
+                  {
+                    "Name": "d",
+                    "Entity": "dim_cliente",
+                    "Type": 0
+                  }
+                ],
+                "Where": [
+                  {
+                    "Condition": {
+                      "In": {
+                        "Expressions": [
+                          {
+                            "Column": {
+                              "Expression": {
+                                "SourceRef": {
+                                  "Source": "d"
+                                }
+                              },
+                              "Property": "age_group"
+                            }
+                          }
+                        ],
+                        "Values": [
+                          [
+                            {
+                              "Literal": {
+                                "Value": "'18-25'"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "df3ebb8e6ac3989e4a64",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_cliente"
+              }
+            },
+            "Property": "age_group"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

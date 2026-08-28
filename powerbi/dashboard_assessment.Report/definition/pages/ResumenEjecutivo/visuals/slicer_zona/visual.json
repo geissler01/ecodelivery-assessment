@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "name": "slicer_zona",
   "position": {
     "x": 30,
     "y": 570,
-    "width": 590,
+    "z": 3000,
     "height": 120,
-    "z": 3000
+    "width": 590
   },
   "visual": {
     "visualType": "slicer",
@@ -26,7 +26,8 @@
                 }
               },
               "queryRef": "dim_zona.nombre_zona",
-              "nativeQueryRef": "Filtrar por Zona"
+              "nativeQueryRef": "Filtrar por Zona",
+              "active": true
             }
           ]
         }

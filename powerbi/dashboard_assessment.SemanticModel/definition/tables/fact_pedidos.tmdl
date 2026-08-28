@@ -9,11 +9,15 @@ table fact_pedidos
 		formatString: #,0
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000052
 
-	measure 'Tasa de Entrega %' = DIVIDE([Pedidos Entregados], [Total Pedidos], 0) * 100
-		formatString: 0.0"%"
+	measure 'Tasa de Entrega %' =
+			VAR Entregados = CALCULATE(COUNTROWS(fact_pedidos), fact_pedidos[estado] = "entregado", REMOVEFILTERS(fact_pedidos[estado]))
+			VAR Total = CALCULATE(COUNTROWS(fact_pedidos), REMOVEFILTERS(fact_pedidos[estado]))
+			RETURN
+				DIVIDE(Entregados, Total, 0)
+		formatString: 0.0%
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000053
 
-	measure 'Tiempo Promedio Entrega (min)' = CALCULATE(AVERAGE(fact_pedidos[tiempo_entrega_minutos]), fact_pedidos[estado] = "entregado")
+	measure 'Tiempo Promedio Entrega (min)' = CALCULATE(AVERAGE(fact_pedidos[tiempo_entrega_minutos]), fact_pedidos[estado] = "entregado", REMOVEFILTERS(fact_pedidos[estado]))
 		formatString: #,0.0
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000054
 
@@ -29,21 +33,25 @@ table fact_pedidos
 		formatString: $ #,0.00
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000057
 
-	measure 'Margen %' = DIVIDE([Margen Bruto Total], [Ingresos Totales], 0) * 100
-		formatString: 0.0"%"
+	measure 'Margen %' = DIVIDE([Margen Bruto Total], [Ingresos Totales], 0)
+		formatString: 0.0%
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000058
 
 	measure 'Ticket Promedio' = AVERAGE(fact_pedidos[monto])
 		formatString: $ #,0.00
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000059
 
-	measure 'Pedidos Fin de Semana' = CALCULATE(COUNTROWS(fact_pedidos), dim_date[is_weekend] = TRUE())
+	measure 'Pedidos Fin de Semana' = CALCULATE(COUNTROWS(fact_pedidos), dim_date[is_weekend] = TRUE(), REMOVEFILTERS(fact_pedidos[estado]))
 		formatString: #,0
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000060
 
 	measure 'Pedidos No Entregados' = CALCULATE(COUNTROWS(fact_pedidos), fact_pedidos[estado] <> "entregado")
 		formatString: #,0
 		lineageTag: f1a2b3c4-0001-0001-0001-000000000061
+
+	measure 'Repartidores Activos' = CALCULATE(DISTINCTCOUNT(fact_pedidos[repartidor_sk]), REMOVEFILTERS(fact_pedidos[estado]))
+		formatString: #,0
+		lineageTag: f1a2b3c4-0001-0001-0001-000000000062
 
 	column pedido_sk
 		dataType: int64

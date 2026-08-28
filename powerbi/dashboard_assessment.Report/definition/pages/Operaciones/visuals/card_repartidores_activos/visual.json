@@ -19,13 +19,13 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_repartidor"
+                      "Entity": "fact_pedidos"
                     }
                   },
                   "Property": "Repartidores Activos"
                 }
               },
-              "queryRef": "dim_repartidor.Repartidores Activos",
+              "queryRef": "fact_pedidos.Repartidores Activos",
               "nativeQueryRef": "Repartidores Activos"
             }
           ]
